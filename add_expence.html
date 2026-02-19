@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Expense | Expenso</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    
+    .bg-primary-gradient {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+    
+    .text-primary {
+      color: #059669;
+    }
+    
+    input, select {
+      transition: all 0.2s ease;
+    }
+    
+    input:focus, select:focus {
+      border-color: #059669;
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen selection:bg-green-100 selection:text-green-900 flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white/90 backdrop-blur-md border-b border-gray-200 fixed w-full top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 bg-green-600 rounded flex items-center justify-center">
+            <span class="text-white font-bold text-lg">E</span>
+          </div>
+          <h1 class="text-xl font-bold text-gray-900 tracking-tight">expenso</h1>
+        </div>
+        
+        <nav class="hidden md:flex items-center space-x-8">
+          <a href="index.html" class="text-gray-500 hover:text-gray-900 transition-colors font-medium">Home</a>
+          <a href="dashboard.html" class="text-gray-500 hover:text-gray-900 transition-colors font-medium">Dashboard</a>
+          <a href="add_expence.html" class="text-green-600 font-medium">Add Expense</a>
+          <a href="report.html" class="text-gray-500 hover:text-gray-900 transition-colors font-medium">Reports</a>
+          <a href="profile.html" class="text-gray-500 hover:text-gray-900 transition-colors font-medium">Profile</a>
+          <button onclick="window.logout()" class="text-gray-500 hover:text-red-600 font-medium transition-colors">
+            <i class="fa-solid fa-arrow-right-from-bracket mr-1.5"></i>Logout
+          </button>
+        </nav>
+
+        <button class="md:hidden text-gray-500 hover:text-gray-900" onclick="toggleMobileMenu()">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+      </div>
+
+      <div id="mobile-menu" class="hidden md:hidden mt-4 pb-2 border-t border-gray-100 pt-4">
+        <div class="flex flex-col space-y-4">
+          <a href="index.html" class="text-gray-600 font-medium">Home</a>
+          <a href="dashboard.html" class="text-gray-600 font-medium">Dashboard</a>
+          <a href="add_expence.html" class="text-green-600 font-medium">Add Expense</a>
+          <a href="report.html" class="text-gray-600 font-medium">Reports</a>
+          <a href="profile.html" class="text-gray-600 font-medium">Profile</a>
+          <button onclick="window.logout()" class="text-left text-red-600 font-medium pt-2 border-t border-gray-100">
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow pt-28 pb-12 px-4 flex items-center justify-center">
+    <div class="w-full max-w-lg">
+      <div class="mb-6">
+        <a href="dashboard.html" class="text-sm text-gray-500 hover:text-gray-900 mb-4 inline-flex items-center">
+          <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
+        </a>
+        <h2 class="text-2xl font-bold text-gray-900">Log an Expense</h2>
+        <p class="text-gray-500 mt-1">Record a new transaction to track your spending.</p>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="p-6 md:p-8">
+          <form id="expense-form" class="space-y-6">
+            <!-- Quick Amount -->
+            <div>
+              <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">Quick Fill</label>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="setAmount(100)" class="px-3 py-1.5 bg-gray-50 border border-gray-200 hover:border-green-500 hover:text-green-700 rounded text-sm font-medium text-gray-600 transition-colors">₹100</button>
+                <button type="button" onclick="setAmount(500)" class="px-3 py-1.5 bg-gray-50 border border-gray-200 hover:border-green-500 hover:text-green-700 rounded text-sm font-medium text-gray-600 transition-colors">₹500</button>
+                <button type="button" onclick="setAmount(1000)" class="px-3 py-1.5 bg-gray-50 border border-gray-200 hover:border-green-500 hover:text-green-700 rounded text-sm font-medium text-gray-600 transition-colors">₹1k</button>
+                <button type="button" onclick="setAmount(2000)" class="px-3 py-1.5 bg-gray-50 border border-gray-200 hover:border-green-500 hover:text-green-700 rounded text-sm font-medium text-gray-600 transition-colors">₹2k</button>
+                <button type="button" onclick="setAmount(5000)" class="px-3 py-1.5 bg-gray-50 border border-gray-200 hover:border-green-500 hover:text-green-700 rounded text-sm font-medium text-gray-600 transition-colors">₹5k</button>
+              </div>
+            </div>
+
+            <hr class="border-gray-100" />
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5" for="title">Description</label>
+              <input type="text" id="title" required 
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none"
+                placeholder="e.g. Weekly Groceries" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5" for="amount">Amount</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span class="text-gray-500">₹</span>
+                </div>
+                <input type="number" id="amount" required min="1" step="1"
+                  class="w-full pl-8 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none"
+                  placeholder="0" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5" for="category">Category</label>
+                <div class="relative">
+                  <select id="category" 
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none appearance-none bg-white">
+                    <option>Food</option>
+                    <option>Travel</option>
+                    <option>Rent</option>
+                    <option>Groceries</option>
+                    <option>Shopping</option>
+                    <option>Bills</option>
+                    <option>Entertainment</option>
+                    <option>Others</option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5" for="date">Date</label>
+                <input type="date" id="date" required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none" />
+              </div>
+            </div>
+
+            <button type="submit" 
+              class="w-full bg-primary-gradient text-white py-3 rounded-lg hover:shadow-md transition-all font-medium flex items-center justify-center">
+              Save Transaction
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    if (typeof requireAuth === 'function') requireAuth();
+    
+    document.getElementById('date').valueAsDate = new Date();
+
+    window.setAmount = function(amount) {
+      document.getElementById('amount').value = amount;
+      const input = document.getElementById('amount');
+      input.classList.add('border-green-500');
+      setTimeout(() => {
+        input.classList.remove('border-green-500');
+      }, 300);
+    }
+
+    document.getElementById('expense-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const user = typeof getLoggedInUser === 'function' ? getLoggedInUser() : null;
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      const expense = {
+        id: Date.now(),
+        userEmail: user.email,
+        title: document.getElementById('title').value,
+        amount: parseFloat(document.getElementById('amount').value),
+        category: document.getElementById('category').value,
+        date: document.getElementById('date').value
+      };
+
+      const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+      expenses.push(expense);
+      localStorage.setItem('expenses', JSON.stringify(expenses));
+      
+      window.location.href = 'dashboard.html';
+    });
+  </script>
+</body>
+</html>

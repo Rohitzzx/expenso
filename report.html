@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports | Expenso</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    
+    .bg-primary-gradient {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+    
+    .text-primary {
+      color: #059669;
+    }
+    
+    .table-row-hover:hover {
+      background-color: #f9fafb;
+    }
+
+    .tag-Food { background-color: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+    .tag-Travel { background-color: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+    .tag-Rent { background-color: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+    .tag-Groceries { background-color: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+    .tag-Shopping { background-color: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8; }
+    .tag-Bills { background-color: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .tag-Entertainment { background-color: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .tag-Others { background-color: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb; }
+    
+    .filter-btn {
+      transition: all 0.2s ease;
+    }
+    .filter-btn.active {
+      background-color: #059669;
+      color: white;
+      border-color: #059669;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen selection:bg-green-100 selection:text-green-900 flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white/90 backdrop-blur-md border-b border-gray-200 fixed w-full top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 bg-green-600 rounded flex items-center justify-center">
+            <span class="text-white font-bold text-lg">E</span>
+          </div>
+          <h1 class="text-xl font-bold text-gray-900 tracking-tight">expenso</h1>
+        </div>
+        
+        <nav class="hidden md:flex items-center space-x-8">
+          <a href="index.html" class="text-gray-500 hover:text-gray-900 transition-colors font-medium">Home</a>
+          <a href="dashboard.html" class="text-gray-500 hover:text-gray-900 transition-colors font-medium">Dashboard</a>
+          <a href="add_expence.html" class="text-gray-500 hover:text-gray-900 transition-colors font-medium">Add Expense</a>
+          <a href="report.html" class="text-green-600 font-medium">Reports</a>
+          <a href="profile.html" class="text-gray-500 hover:text-gray-900 transition-colors font-medium">Profile</a>
+          <button onclick="window.logout()" class="text-gray-500 hover:text-red-600 font-medium transition-colors">
+            <i class="fa-solid fa-arrow-right-from-bracket mr-1.5"></i>Logout
+          </button>
+        </nav>
+
+        <button class="md:hidden text-gray-500 hover:text-gray-900" onclick="toggleMobileMenu()">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+      </div>
+
+      <div id="mobile-menu" class="hidden md:hidden mt-4 pb-2 border-t border-gray-100 pt-4">
+        <div class="flex flex-col space-y-4">
+          <a href="index.html" class="text-gray-600 font-medium">Home</a>
+          <a href="dashboard.html" class="text-gray-600 font-medium">Dashboard</a>
+          <a href="add_expence.html" class="text-gray-600 font-medium">Add Expense</a>
+          <a href="report.html" class="text-green-600 font-medium">Reports</a>
+          <a href="profile.html" class="text-gray-600 font-medium">Profile</a>
+          <button onclick="window.logout()" class="text-left text-red-600 font-medium pt-2 border-t border-gray-100">
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow pt-28 pb-12 px-4 max-w-6xl mx-auto w-full">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Spending Analysis</h2>
+        <p class="text-gray-500 mt-1">Detailed breakdown of your expenses by category.</p>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="exportReportToCSV()" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm flex items-center">
+          <i class="fa-solid fa-download mr-2 text-gray-400"></i> Export Report
+        </button>
+        <a href="add_expence.html" class="bg-primary-gradient text-white px-4 py-2 rounded-lg hover:shadow-md transition-shadow font-medium text-sm flex items-center">
+          <i class="fa-solid fa-plus mr-2"></i> Add Expense
+        </a>
+      </div>
+    </div>
+
+    <!-- Time Range Filter -->
+    <div class="mb-8">
+      <div class="flex items-center gap-2 mb-3">
+        <i class="fa-regular fa-calendar text-gray-400"></i>
+        <span class="text-sm font-medium text-gray-700">Report Period:</span>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button onclick="setTimeFilter('7d')" class="filter-btn px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 hover:border-green-500 hover:text-green-700 transition-colors" id="filter-7d">Last 7 days</button>
+        <button onclick="setTimeFilter('30d')" class="filter-btn px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 hover:border-green-500 hover:text-green-700 transition-colors active" id="filter-30d">Last 30 days</button>
+        <button onclick="setTimeFilter('90d')" class="filter-btn px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 hover:border-green-500 hover:text-green-700 transition-colors" id="filter-90d">Last 90 days</button>
+        <button onclick="setTimeFilter('1y')" class="filter-btn px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 hover:border-green-500 hover:text-green-700 transition-colors" id="filter-1y">Last year</button>
+        <button onclick="setTimeFilter('lifetime')" class="filter-btn px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 hover:border-green-500 hover:text-green-700 transition-colors" id="filter-lifetime">All time</button>
+      </div>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white p-6 rounded-xl border border-gray-200">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-gray-500 text-sm font-medium">Total Spent</h3>
+          <i class="fa-solid fa-chart-simple text-gray-400"></i>
+        </div>
+        <p class="text-3xl font-bold text-gray-900" id="total-spent">₹0</p>
+        <p class="text-xs text-gray-400 mt-2" id="total-period">for selected period</p>
+      </div>
+      
+      <div class="bg-white p-6 rounded-xl border border-gray-200">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-gray-500 text-sm font-medium">Categories</h3>
+          <i class="fa-solid fa-layer-group text-gray-400"></i>
+        </div>
+        <p class="text-3xl font-bold text-gray-900" id="total-categories">0</p>
+        <p class="text-xs text-gray-400 mt-2">active categories</p>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-gray-200">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-gray-500 text-sm font-medium">Transactions</h3>
+          <i class="fa-solid fa-receipt text-gray-400"></i>
+        </div>
+        <p class="text-3xl font-bold text-gray-900" id="total-transactions">0</p>
+        <p class="text-xs text-gray-400 mt-2">total entries</p>
+      </div>
+      
+      <div class="bg-white p-6 rounded-xl border border-gray-200">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-gray-500 text-sm font-medium">Largest Category</h3>
+          <i class="fa-solid fa-crown text-gray-400"></i>
+        </div>
+        <p class="text-xl font-bold text-gray-900 truncate" id="largest-category">-</p>
+        <p class="text-xs text-gray-400 mt-2" id="largest-percent">0% of total</p>
+      </div>
+    </div>
+
+    <!-- Category Breakdown Table -->
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-8">
+      <div class="px-6 py-5 border-b border-gray-200 bg-white">
+        <h3 class="font-semibold text-gray-900">Category-wise Breakdown</h3>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm text-left">
+          <thead class="bg-gray-50 text-gray-500 border-b border-gray-200">
+            <tr>
+              <th class="px-6 py-3 font-medium">Category</th>
+              <th class="px-6 py-3 font-medium text-right">Total Spent</th>
+              <th class="px-6 py-3 font-medium text-center">Transactions</th>
+              <th class="px-6 py-3 font-medium text-right">Average</th>
+              <th class="px-6 py-3 font-medium text-right">% of Total</th>
+              <th class="px-6 py-3 font-medium">Trend</th>
+            </tr>
+          </thead>
+          <tbody id="report-body" class="divide-y divide-gray-100"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Monthly Trends (Optional - if you want to add a chart) -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+      <h3 class="font-semibold text-gray-900 mb-4">Monthly Spending Trend</h3>
+      <div class="h-64 relative">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    let currentFilter = '30d';
+    let allExpenses = [];
+    let trendChart = null;
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    if (typeof requireAuth === 'function') requireAuth();
+    
+    if (typeof formatCurrency !== 'function') {
+      window.formatCurrency = function(amount) {
+        return `₹${parseFloat(amount).toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+      }
+    }
+
+    // Load all expenses
+    function loadAllExpenses() {
+      allExpenses = (typeof getUserExpenses === 'function') ? getUserExpenses() : [];
+    }
+
+    // Filter expenses by time
+    function filterExpensesByTime(expenses, filter) {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      return expenses.filter(exp => {
+        const expDate = new Date(exp.date);
+        
+        switch(filter) {
+          case '7d':
+            const sevenDaysAgo = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+            return expDate >= sevenDaysAgo;
+          case '30d':
+            const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+            return expDate >= thirtyDaysAgo;
+          case '90d':
+            const ninetyDaysAgo = new Date(today.getTime() - (90 * 24 * 60 * 60 * 1000));
+            return expDate >= ninetyDaysAgo;
+          case '1y':
+            const oneYearAgo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+            return expDate >= oneYearAgo;
+          case 'lifetime':
+            return true;
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Update active filter
+    function updateActiveFilter(filter) {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active', 'bg-green-600', 'text-white', 'border-green-600');
+        btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+      });
+      
+      const activeBtn = document.getElementById(`filter-${filter}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
+        activeBtn.classList.add('active', 'bg-green-600', 'text-white', 'border-green-600');
+      }
+    }
+
+    // Set time filter
+    function setTimeFilter(filter) {
+      currentFilter = filter;
+      updateActiveFilter(filter);
+      
+      const filteredExpenses = filterExpensesByTime(allExpenses, filter);
+      updateReports(filteredExpenses);
+      
+      const periodText = {
+        '7d': 'last 7 days',
+        '30d': 'last 30 days',
+        '90d': 'last 90 days',
+        '1y': 'last year',
+        'lifetime': 'all time'
+      };
+      document.getElementById('total-period').innerText = `for ${periodText[filter]}`;
+    }
+
+    function updateReports(expenses) {
+      // Group by category
+      const categoryData = {};
+      let totalOverall = 0;
+      
+      expenses.forEach(exp => {
+        if (!categoryData[exp.category]) {
+          categoryData[exp.category] = { 
+            total: 0, 
+            count: 0,
+            max: 0,
+            min: Infinity
+          };
+        }
+        categoryData[exp.category].total += exp.amount;
+        categoryData[exp.category].count += 1;
+        categoryData[exp.category].max = Math.max(categoryData[exp.category].max, exp.amount);
+        categoryData[exp.category].min = Math.min(categoryData[exp.category].min, exp.amount);
+        totalOverall += exp.amount;
+      });
+
+      // Update summary cards
+      const categoryCount = Object.keys(categoryData).length;
+      document.getElementById('total-spent').innerText = formatCurrency(totalOverall);
+      document.getElementById('total-categories').innerText = categoryCount;
+      document.getElementById('total-transactions').innerText = expenses.length;
+
+      // Find largest category
+      let largestCategory = { name: '-', total: 0 };
+      if (categoryCount > 0) {
+        largestCategory = Object.entries(categoryData).reduce((max, [name, data]) => 
+          data.total > max.total ? { name, total: data.total } : max, { name: '-', total: 0 }
+        );
+      }
+      
+      document.getElementById('largest-category').innerText = largestCategory.name;
+      const largestPercent = totalOverall > 0 ? ((largestCategory.total / totalOverall) * 100).toFixed(1) : 0;
+      document.getElementById('largest-percent').innerText = `${largestPercent}% of total`;
+
+      // Update table
+      const reportBody = document.getElementById('report-body');
+
+      if (categoryCount === 0) {
+        reportBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+              <i class="fa-regular fa-chart-bar text-3xl mb-3 block text-gray-300"></i>
+              No data for this period. <a href="add_expence.html" class="text-green-600 hover:underline">Add an expense</a>
+            </td>
+          </tr>
+        `;
+      } else {
+        // Sort by total spent (highest first)
+        const sortedCategories = Object.entries(categoryData).sort((a, b) => b[1].total - a[1].total);
+        
+        reportBody.innerHTML = sortedCategories.map(([category, data]) => {
+          const percentage = totalOverall > 0 ? ((data.total / totalOverall) * 100).toFixed(1) : 0;
+          const average = data.total / data.count;
+          const safeCategoryClass = category ? category.replace(/\s+/g, '') : 'Others';
+          
+          // Calculate trend (compare to previous period - simple version)
+          const trend = calculateTrend(category);
+          
+          return `
+            <tr class="table-row-hover">
+              <td class="px-6 py-4">
+                <span class="inline-block px-3 py-1.5 rounded text-xs font-semibold tag-${safeCategoryClass}">
+                  ${category}
+                </span>
+              </td>
+              <td class="px-6 py-4 font-semibold text-gray-900 text-right">${formatCurrency(data.total)}</td>
+              <td class="px-6 py-4 text-gray-600 text-center">${data.count}</td>
+              <td class="px-6 py-4 text-gray-600 text-right">${formatCurrency(Math.round(average))}</td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <span class="text-sm font-medium text-gray-700">${percentage}%</span>
+                  <div class="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-green-500 rounded-full" style="width: ${percentage}%"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                ${trend}
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Update monthly trend chart
+      updateTrendChart(expenses);
+    }
+
+    // Simple trend calculation (compare to previous month)
+    function calculateTrend(category) {
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      
+      const currentMonthExpenses = allExpenses.filter(exp => {
+        const expDate = new Date(exp.date);
+        return exp.category === category && 
+               expDate.getMonth() === currentMonth && 
+               expDate.getFullYear() === currentYear;
+      });
+      
+      const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+      
+      const prevMonthExpenses = allExpenses.filter(exp => {
+        const expDate = new Date(exp.date);
+        return exp.category === category && 
+               expDate.getMonth() === prevMonth && 
+               expDate.getFullYear() === prevYear;
+      });
+      
+      const currentTotal = currentMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
+      const prevTotal = prevMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
+      
+      if (prevTotal === 0) {
+        return '<span class="text-xs text-gray-400">New</span>';
+      }
+      
+      const change = ((currentTotal - prevTotal) / prevTotal) * 100;
+      
+      if (change > 0) {
+        return `<span class="text-xs text-red-600"><i class="fa-solid fa-arrow-up mr-1"></i>${Math.abs(change).toFixed(0)}%</span>`;
+      } else if (change < 0) {
+        return `<span class="text-xs text-green-600"><i class="fa-solid fa-arrow-down mr-1"></i>${Math.abs(change).toFixed(0)}%</span>`;
+      } else {
+        return '<span class="text-xs text-gray-400">—</span>';
+      }
+    }
+
+    // Update trend chart
+    function updateTrendChart(expenses) {
+      if (trendChart) {
+        trendChart.destroy();
+      }
+
+      // Group by month
+      const monthlyData = {};
+      const months = [];
+      
+      expenses.forEach(exp => {
+        const date = new Date(exp.date);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const monthName = date.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
+        
+        if (!monthlyData[monthKey]) {
+          monthlyData[monthKey] = { total: 0, name: monthName };
+        }
+        monthlyData[monthKey].total += exp.amount;
+      });
+
+      // Sort by date
+      const sortedMonths = Object.keys(monthlyData).sort();
+      const labels = sortedMonths.map(key => monthlyData[key].name);
+      const data = sortedMonths.map(key => monthlyData[key].total);
+
+      const ctx = document.getElementById('trendChart').getContext('2d');
+      
+      if (data.length > 0) {
+        trendChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Monthly Spending',
+              data: data,
+              borderColor: '#059669',
+              backgroundColor: 'rgba(5, 150, 105, 0.1)',
+              tension: 0.4,
+              fill: true,
+              pointBackgroundColor: '#059669',
+              pointBorderColor: '#ffffff',
+              pointBorderWidth: 2,
+              pointRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                callbacks: {
+                  label: (context) => `Total: ${formatCurrency(context.raw)}`
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: (value) => `₹${value.toLocaleString('en-IN')}`
+                }
+              }
+            }
+          }
+        });
+      } else {
+        // Show empty state
+        ctx.font = '12px Inter';
+        ctx.fillStyle = '#9ca3af';
+        ctx.textAlign = 'center';
+        ctx.fillText('No data to display', 200, 100);
+      }
+    }
+
+    function exportReportToCSV() {
+      const filteredExpenses = filterExpensesByTime(allExpenses, currentFilter);
+      if (filteredExpenses.length === 0) { 
+        alert("No data to export for this period.");
+        return; 
+      }
+      
+      // Group by category for report
+      const categoryData = {};
+      filteredExpenses.forEach(exp => {
+        if (!categoryData[exp.category]) {
+          categoryData[exp.category] = { total: 0, count: 0 };
+        }
+        categoryData[exp.category].total += exp.amount;
+        categoryData[exp.category].count += 1;
+      });
+      
+      const totalOverall = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
+      
+      const headers = ["Category", "Total Spent (₹)", "Number of Transactions", "Average per Transaction (₹)", "% of Total"];
+      const rows = Object.entries(categoryData).map(([category, data]) => {
+        const percentage = ((data.total / totalOverall) * 100).toFixed(1);
+        const average = (data.total / data.count).toFixed(2);
+        return `"${category}","${data.total}","${data.count}","${average}","${percentage}%"`;
+      });
+      
+      const csvContent = [headers.join(","), ...rows].join("\n");
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+      
+      const period = currentFilter;
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `Expenso_Report_${period}_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+    }
+
+    // Initialize
+    loadAllExpenses();
+    setTimeFilter('30d');
+  </script>
+</body>
+</html>
